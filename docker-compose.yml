@@ -8,7 +8,7 @@ services:
       MARIADB_USER: rruser
       MARIADB_PASSWORD: password
     ports:
-      - "3307:3307"
+      - "3307:3306"
     volumes:
       - db_data:/var/lib/mysql
     healthcheck:
