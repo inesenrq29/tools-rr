@@ -8,7 +8,7 @@ services:
       MARIADB_USER: rruser
       MARIADB_PASSWORD: password
     ports:
-      - "3306:3306"
+      - "3307:3307"
     volumes:
       - db_data:/var/lib/mysql
     healthcheck:
@@ -25,7 +25,7 @@ services:
       db:
         condition: service_healthy
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mariadb://db:3306/rrDb
+      SPRING_DATASOURCE_URL: jdbc:mariadb://db:3307/rrDb
       SPRING_DATASOURCE_USERNAME: rruser
       SPRING_DATASOURCE_PASSWORD: password
       SPRING_JPA_DATABASE_PLATFORM: org.hibernate.dialect.MariaDBDialect
