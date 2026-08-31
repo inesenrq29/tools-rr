@@ -2,8 +2,8 @@ name: Évolution
 description: Proposer une amélioration ou une nouvelle fonctionnalité
 title: "[EVOLUTION] "
 labels:
-  - "type:evolution"
-  - "status:triage"
+  - "evolution"
+  - "triage"
 body:
   - type: markdown
     attributes:

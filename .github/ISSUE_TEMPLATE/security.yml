@@ -2,9 +2,9 @@ name: Incident de sécurité
 description: Déclarer un risque ou incident sans publier de donnée sensible
 title: "[SECURITY] "
 labels:
-  - "type:security"
-  - "priority:critical"
-  - "status:triage"
+  - "security"
+  - "critical"
+  - "triage"
 body:
   - type: markdown
     attributes:

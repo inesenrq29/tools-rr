@@ -2,8 +2,8 @@ name: Anomalie
 description: Signaler un dysfonctionnement de Ressources Relationnelles
 title: "[BUG] "
 labels:
-  - "type:bug"
-  - "status:triage"
+  - "bug"
+  - "triage"
 body:
   - type: markdown
     attributes:
