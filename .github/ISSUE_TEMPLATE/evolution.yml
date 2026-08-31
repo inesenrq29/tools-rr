@@ -1,0 +1,86 @@
+name: Évolution
+description: Proposer une amélioration ou une nouvelle fonctionnalité
+title: "[EVOLUTION] "
+labels:
+  - "type:evolution"
+  - "status:triage"
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Décrivez le besoin utilisateur avant de proposer une solution technique.
+
+  - type: textarea
+    id: need
+    attributes:
+      label: Besoin utilisateur
+      description: Quel problème ou besoin cette évolution doit-elle couvrir ?
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Solution proposée
+      description: Décrivez le comportement fonctionnel attendu.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: component
+    attributes:
+      label: Composant concerné
+      options:
+        - Frontend Angular
+        - Backend Spring Boot
+        - Base de données MariaDB
+        - Docker / déploiement
+        - Authentification / sécurité
+        - Documentation
+        - Plusieurs composants
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Critères d’acceptation
+      placeholder: |
+        - [ ] Le besoin est disponible pour...
+        - [ ] Les permissions sont vérifiées côté backend
+        - [ ] Les tests sont ajoutés
+        - [ ] La documentation est mise à jour
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priorité estimée
+      options:
+        - Faible
+        - Moyenne
+        - Haute
+        - Critique
+    validations:
+      required: true
+
+  - type: textarea
+    id: impacts
+    attributes:
+      label: Impacts techniques et RGPD
+      description: Précisez les impacts sur les données, la sécurité, les migrations et le déploiement.
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Solutions alternatives
+      description: Présentez les autres solutions envisagées.
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Vérifications
+      options:
+        - label: J’ai vérifié qu’aucune demande identique n’existe déjà.
+          required: true

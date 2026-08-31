@@ -1,0 +1,108 @@
+name: Incident de sécurité
+description: Déclarer un risque ou incident sans publier de donnée sensible
+title: "[SECURITY] "
+labels:
+  - "type:security"
+  - "priority:critical"
+  - "status:triage"
+body:
+  - type: markdown
+    attributes:
+      value: |
+        N’indiquez jamais publiquement un secret, un token, un mot de passe,
+        une donnée personnelle réelle ou une procédure d’exploitation complète.
+
+        Si le dépôt est public ou si la vulnérabilité est exploitable,
+        utilisez prioritairement le signalement privé de vulnérabilité du dépôt.
+
+  - type: dropdown
+    id: environment
+    attributes:
+      label: Environnement concerné
+      options:
+        - Développement
+        - Test / préproduction
+        - Production
+        - Plusieurs environnements
+    validations:
+      required: true
+
+  - type: dropdown
+    id: category
+    attributes:
+      label: Catégorie
+      options:
+        - Authentification
+        - Autorisation
+        - Exposition de données
+        - Injection
+        - XSS
+        - CSRF
+        - Secret exposé
+        - Dépendance vulnérable
+        - Configuration serveur
+        - Déni de service
+        - Autre
+    validations:
+      required: true
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: Résumé non sensible
+      description: Décrivez le risque sans fournir de méthode d’exploitation détaillée.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Impact estimé
+      options:
+        - Faible
+        - Moyen
+        - Élevé
+        - Critique
+    validations:
+      required: true
+
+  - type: dropdown
+    id: status
+    attributes:
+      label: Exploitation constatée
+      options:
+        - Non
+        - Suspectée
+        - Confirmée
+        - Inconnue
+    validations:
+      required: true
+
+  - type: textarea
+    id: affected
+    attributes:
+      label: Composants ou données potentiellement concernés
+      description: N’insérez aucune donnée personnelle réelle.
+    validations:
+      required: true
+
+  - type: textarea
+    id: containment
+    attributes:
+      label: Mesures de confinement déjà prises
+
+  - type: input
+    id: contact
+    attributes:
+      label: Contact du déclarant
+      description: Utilisez un moyen de contact interne approprié.
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Vérifications
+      options:
+        - label: Aucun secret ni donnée personnelle n’est présent dans ce ticket.
+          required: true
+        - label: Les preuves sensibles seront transmises par un canal privé.
+          required: true
