@@ -2,17 +2,26 @@ services:
   db:
     image: mariadb:11
     container_name: mariadb
+    restart: unless-stopped
+
     environment:
-      MARIADB_ROOT_PASSWORD: rootpass
-      MARIADB_DATABASE: rrDb
-      MARIADB_USER: rruser
-      MARIADB_PASSWORD: password
+      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MARIADB_DATABASE: ${DB_NAME}
+      MARIADB_USER: ${DB_USERNAME}
+      MARIADB_PASSWORD: ${DB_PASSWORD}
+
     ports:
-      - "3307:3306"
+      - "${DB_PORT}:3306"
+
     volumes:
       - db_data:/var/lib/mysql
+
     healthcheck:
-      test: ["CMD", "mariadb-admin", "ping", "-h", "127.0.0.1", "-u", "rruser", "-ppassword"]
+      test:
+        [
+          "CMD-SHELL",
+          'mariadb-admin ping -h 127.0.0.1 -u"$${MARIADB_USER}" -p"$${MARIADB_PASSWORD}" --silent',
+        ]
       interval: 5s
       timeout: 3s
       retries: 20
@@ -21,26 +30,34 @@ services:
     build:
       context: ./back
     container_name: tools-rr-back
+    restart: unless-stopped
+
     depends_on:
       db:
         condition: service_healthy
+
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mariadb://db:3306/rrDb
-      SPRING_DATASOURCE_USERNAME: rruser
-      SPRING_DATASOURCE_PASSWORD: password
-      SPRING_JPA_DATABASE_PLATFORM: org.hibernate.dialect.MariaDBDialect
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE}
+      SPRING_DATASOURCE_URL: jdbc:mariadb://db:3306/${DB_NAME}
+      SPRING_DATASOURCE_USERNAME: ${DB_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
+      SECURITY_JWT_SECRET: ${JWT_SECRET}
+      SERVER_PORT: 8080
+
     ports:
-      - "8080:8080"
+      - "${BACK_PORT}:8080"
 
   front:
     build:
       context: ./front
     container_name: tools-rr-front
+    restart: unless-stopped
+
     depends_on:
       - back
-    ports:
-      - "4200:80"
 
+    ports:
+      - "${FRONT_PORT}:80"
 
 volumes:
   db_data:
