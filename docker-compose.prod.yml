@@ -1,63 +1,60 @@
 services:
   db:
     image: mariadb:11
-    container_name: mariadb
     restart: unless-stopped
-
     environment:
       MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
       MARIADB_DATABASE: ${DB_NAME}
       MARIADB_USER: ${DB_USERNAME}
       MARIADB_PASSWORD: ${DB_PASSWORD}
-
-    ports:
-      - "${DB_PORT}:3306"
-
     volumes:
-      - db_data:/var/lib/mysql
-
+      - db_data_prod:/var/lib/mysql
     healthcheck:
       test:
         [
           "CMD-SHELL",
-          'mariadb-admin ping -h 127.0.0.1 -u"$${MARIADB_USER}" -p"$${MARIADB_PASSWORD}" --silent',
+          'mariadb-admin ping -h 127.0.0.1 -u"$${MARIADB_USER}" -p"$${MARIADB_PASSWORD}" --silent'
         ]
-      interval: 5s
-      timeout: 3s
-      retries: 20
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    networks:
+      - database
 
   back:
     build:
       context: ./back
-    container_name: tools-rr-back
     restart: unless-stopped
-
     depends_on:
       db:
         condition: service_healthy
-
     environment:
-      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE}
+      SPRING_PROFILES_ACTIVE: prod
       SPRING_DATASOURCE_URL: jdbc:mariadb://db:3306/${DB_NAME}
       SPRING_DATASOURCE_USERNAME: ${DB_USERNAME}
       SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
       SECURITY_JWT_SECRET: ${JWT_SECRET}
       SERVER_PORT: 8080
-
-    ports:
-      - "${BACK_PORT}:8080"
+    networks:
+      - application
+      - database
 
   front:
     build:
       context: ./front
-    container_name: tools-rr-front
     restart: unless-stopped
-
     depends_on:
       - back
-
     ports:
-      - "${FRONT_PORT}:80"
+      - "${FRONT_PORT:-80}:80"
+    networks:
+      - application
 
 volumes:
-  db_data:
+  db_data_prod:
+
+networks:
+  application:
+  database:
+    internal: true
