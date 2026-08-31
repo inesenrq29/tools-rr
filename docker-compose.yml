@@ -1,0 +1,46 @@
+services:
+  db:
+    image: mariadb:11
+    container_name: mariadb
+    environment:
+      MARIADB_ROOT_PASSWORD: rootpass
+      MARIADB_DATABASE: rrDb
+      MARIADB_USER: rruser
+      MARIADB_PASSWORD: password
+    ports:
+      - "3307:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mariadb-admin", "ping", "-h", "127.0.0.1", "-u", "rruser", "-ppassword"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  back:
+    build:
+      context: ./back
+    container_name: tools-rr-back
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mariadb://db:3306/rrDb
+      SPRING_DATASOURCE_USERNAME: rruser
+      SPRING_DATASOURCE_PASSWORD: password
+      SPRING_JPA_DATABASE_PLATFORM: org.hibernate.dialect.MariaDBDialect
+    ports:
+      - "8080:8080"
+
+  front:
+    build:
+      context: ./front
+    container_name: tools-rr-front
+    depends_on:
+      - back
+    ports:
+      - "4200:80"
+
+
+volumes:
+  db_data:
