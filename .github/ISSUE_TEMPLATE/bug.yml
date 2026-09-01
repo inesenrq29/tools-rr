@@ -1,0 +1,112 @@
+name: Anomalie
+description: Signaler un dysfonctionnement de Ressources Relationnelles
+title: "[BUG] "
+labels:
+  - "bug"
+  - "triage"
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Merci de fournir les informations nécessaires à la reproduction du problème.
+        Ne communiquez aucun mot de passe, token, secret ou donnée personnelle réelle.
+
+  - type: dropdown
+    id: environment
+    attributes:
+      label: Environnement
+      options:
+        - Développement
+        - Test / préproduction
+        - Production
+    validations:
+      required: true
+
+  - type: dropdown
+    id: component
+    attributes:
+      label: Composant concerné
+      options:
+        - Frontend Angular
+        - Backend Spring Boot
+        - Base de données MariaDB
+        - Docker / déploiement
+        - Authentification / sécurité
+        - Documentation
+        - Autre
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Version ou commit
+      placeholder: "Exemple : v1.0.0 ou a1b2c3d"
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: Décrivez précisément le dysfonctionnement.
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Étapes de reproduction
+      placeholder: |
+        1. Se connecter avec un compte utilisateur
+        2. Ouvrir...
+        3. Cliquer sur...
+        4. Constater...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Résultat attendu
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Résultat obtenu
+    validations:
+      required: true
+
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Journaux ou captures
+      description: Masquez les emails, tokens et données personnelles.
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Criticité estimée
+      options:
+        - Faible
+        - Moyenne
+        - Haute
+        - Critique
+    validations:
+      required: true
+
+  - type: textarea
+    id: workaround
+    attributes:
+      label: Solution de contournement
+      description: Indiquez si une solution temporaire existe.
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Vérifications
+      options:
+        - label: J’ai vérifié qu’aucun ticket identique n’existe déjà.
+          required: true
+        - label: Je n’ai inclus aucun secret ni donnée personnelle réelle.
+          required: true

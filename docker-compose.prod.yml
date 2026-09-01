@@ -23,8 +23,9 @@ services:
       - database
 
   back:
-    build:
-      context: ./back
+    image: ghcr.io/inesenrq29/ressource-relationnelle-back:latest
+    pull_policy: always
+    container_name: rr-back
     restart: unless-stopped
     depends_on:
       db:
@@ -41,8 +42,9 @@ services:
       - database
 
   front:
-    build:
-      context: ./front
+    image: ghcr.io/inesenrq29/ressource-relationnelle-front:latest
+    pull_policy: always
+    container_name: rr-front
     restart: unless-stopped
     depends_on:
       - back
