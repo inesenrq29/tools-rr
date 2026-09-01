@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Signalement confidentiel de sécurité
+    url: https://github.com/inesenrq29/tools-rr/security/advisories/new
+    about: Utiliser ce canal pour une vulnérabilité exploitable ou contenant des informations sensibles.
