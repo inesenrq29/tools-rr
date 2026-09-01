@@ -81,15 +81,23 @@ jobs:
       # vérification que Nginx arrive à joindre le back
       - name: Check backend proxy
         run: |
-          status=$(curl --silent --output /dev/null --write-out "%{http_code}" \
-            http://localhost:8080/api/ || true)
-
-          echo "Backend proxy returned HTTP ${status}"
-
-          if [ "${status}" = "000" ] || [ "${status}" = "502" ] || [ "${status}" = "504" ]; then
-            echo "Nginx cannot reach the backend"
-            exit 1
-          fi
+          for attempt in {1..36}; do
+            status=$(curl --silent --output /dev/null --write-out "%{http_code}" \
+              http://localhost:8080/api/ || true)
+          
+            echo "Attempt ${attempt}/36: backend returned HTTP ${status}"
+          
+            if [[ "${status}" =~ ^[234][0-9][0-9]$ ]]; then
+              echo "Nginx can reach the backend"
+              exit 0
+            fi
+          
+            sleep 5
+          done
+          
+          echo "Backend did not become available"
+          docker compose -f docker-compose.prod.yml logs back --no-color
+          exit 1
 
       # affichage des logs si échec
       - name: Show Docker logs on failure
