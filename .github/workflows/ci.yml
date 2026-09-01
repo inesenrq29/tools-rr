@@ -1,0 +1,102 @@
+name: CI Tools
+
+on:
+  push:
+    branches:
+      - "**"
+
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+  packages: read
+
+jobs:
+  integration:
+    name: Test production environment
+    runs-on: ubuntu-latest
+
+    env:
+      DB_ROOT_PASSWORD: ci_root_password
+      DB_NAME: rr_ci
+      DB_USERNAME: rr_ci
+      DB_PASSWORD: ci_password
+
+      JWT_SECRET: ci-jwt-secret-long-and-secure-with-at-least-32-characters
+
+      FRONT_PORT: 8080
+
+    steps:
+      # récupération du dépôt tools
+      - name: Retrieve repository
+        uses: actions/checkout@v6
+
+      # connexion à GHCR pour télécharger les images back et front
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # vérification de la syntaxe du Docker Compose
+      - name: Validate production Docker Compose
+        run: docker compose -f docker-compose.prod.yml config
+
+      # téléchargement des images MariaDB, back et front
+      - name: Pull production images
+        run: docker compose -f docker-compose.prod.yml pull
+
+      # démarrage de l'environnement
+      - name: Start production environment
+        run: >
+          docker compose
+          -f docker-compose.prod.yml
+          up -d
+          --wait
+          --wait-timeout 180
+
+      # affichage de l'état des conteneurs
+      - name: Show container status
+        run: docker compose -f docker-compose.prod.yml ps
+
+      # vérification que le front répond via Nginx
+      - name: Check frontend
+        run: |
+          for attempt in {1..20}; do
+            if curl --fail --silent --show-error http://localhost:8080/ > /dev/null; then
+              echo "Frontend is available"
+              exit 0
+            fi
+
+            echo "Waiting for frontend: attempt ${attempt}/20"
+            sleep 3
+          done
+
+          echo "Frontend did not become available"
+          exit 1
+
+      # vérification que Nginx arrive à joindre le back
+      - name: Check backend proxy
+        run: |
+          status=$(curl --silent --output /dev/null --write-out "%{http_code}" \
+            http://localhost:8080/api/ || true)
+
+          echo "Backend proxy returned HTTP ${status}"
+
+          if [ "${status}" = "000" ] || [ "${status}" = "502" ] || [ "${status}" = "504" ]; then
+            echo "Nginx cannot reach the backend"
+            exit 1
+          fi
+
+      # affichage des logs si échec
+      - name: Show Docker logs on failure
+        if: failure()
+        run: docker compose -f docker-compose.prod.yml logs --no-color
+
+      # suppression de l'environnement temporaire
+      - name: Stop production environment
+        if: always()
+        run: docker compose -f docker-compose.prod.yml down --volumes
