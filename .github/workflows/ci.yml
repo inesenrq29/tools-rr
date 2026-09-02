@@ -26,12 +26,29 @@ jobs:
 
       JWT_SECRET: ci-jwt-secret-long-and-secure-with-at-least-32-characters
 
-      FRONT_PORT: 8080
+      CORS_ALLOWED_ORIGINS: https://localhost
+      REFRESH_COOKIE_SECURE: "true"
+      REFRESH_COOKIE_SAME_SITE: Strict
+      REFRESH_COOKIE_PATH: /api/auth
 
     steps:
       # récupération du dépôt tools
       - name: Retrieve repository
         uses: actions/checkout@v6
+
+      # génération d'un certificat HTTPS temporaire pour la CI
+      - name: Generate HTTPS certificate for CI
+        run: |
+          mkdir -p certs
+          
+          openssl req -x509 \
+            -nodes \
+            -newkey rsa:2048 \
+            -keyout certs/rr-local-key.pem \
+            -out certs/rr-local.pem \
+            -days 1 \
+            -subj "/CN=localhost" \
+            -addext "subjectAltName=DNS:localhost,IP:127.0.0.1"
 
       # connexion à GHCR pour télécharger les images back et front
       - name: Log in to GitHub Container Registry
@@ -66,7 +83,8 @@ jobs:
       - name: Check frontend
         run: |
           for attempt in {1..20}; do
-            if curl --fail --silent --show-error http://localhost:8080/ > /dev/null; then
+            if curl --fail --silent --show-error --insecure \
+              https://localhost/ > /dev/null; then
               echo "Frontend is available"
               exit 0
             fi
@@ -82,19 +100,23 @@ jobs:
       - name: Check backend proxy
         run: |
           for attempt in {1..36}; do
-            status=$(curl --silent --output /dev/null --write-out "%{http_code}" \
-              http://localhost:8080/api/ || true)
-          
+            status=$(curl \
+              --insecure \
+              --silent \
+              --output /dev/null \
+              --write-out "%{http_code}" \
+              https://localhost/api/ || true)
+
             echo "Attempt ${attempt}/36: backend returned HTTP ${status}"
-          
+
             if [[ "${status}" =~ ^[234][0-9][0-9]$ ]]; then
               echo "Nginx can reach the backend"
               exit 0
             fi
-          
+
             sleep 5
           done
-          
+
           echo "Backend did not become available"
           docker compose -f docker-compose.prod.yml logs back --no-color
           exit 1
