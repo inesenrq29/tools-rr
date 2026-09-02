@@ -34,7 +34,7 @@ jobs:
     steps:
       # récupération du dépôt tools
       - name: Retrieve repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       # génération d'un certificat HTTPS temporaire pour la CI
       - name: Generate HTTPS certificate for CI
